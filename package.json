@@ -1,0 +1,54 @@
+{
+  "name": "@xplora-uk/cacher",
+  "version": "1.0.0",
+  "description": "Wrapper for cache clients for more resilient operations",
+  "main": "lib/index.js",
+  "type": "commonjs",
+  "types": "lib/types.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build:ts": "tsc -b ./tsconfig.build.json",
+    "build": "npm run clean && npm run build:ts",
+    "clean": "rimraf lib",
+    "test": "mocha -r ts-node/register ./src/__tests__/**/*.test.ts",
+    "test:integration": "mocha -r ts-node/register ./src/__tests__/integration/**/*.test.ts",
+    "test:component": "mocha -r ts-node/register ./src/__tests__/component/**/*.test.ts",
+    "test:unit": "mocha -r ts-node/register ./src/__tests__/unit/**/*.test.ts",
+    "test:coverage": "nyc npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xplora-uk/cacher.git"
+  },
+  "keywords": [
+    "cacher",
+    "cache",
+    "redis"
+  ],
+  "author": "Haci Murat Yaman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xplora-uk/cacher/issues"
+  },
+  "homepage": "https://github.com/xplora-uk/cacher#readme",
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.14.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "engines": {
+    "node": ">=16.19.1"
+  },
+  "dependencies": {
+    "node-cache": "^5.1.2",
+    "redis": "^4.6.7"
+  }
+}
