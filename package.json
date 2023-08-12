@@ -1,6 +1,6 @@
 {
   "name": "@xplora-uk/cacher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Wrapper for cache clients for more resilient operations",
   "main": "lib/index.js",
   "type": "commonjs",
