@@ -52,11 +52,11 @@ useCacher(app, cacher2, '/node-cache');
 
 async function main() {
 
-  await cacher1.start();// // this hangs if redis is not running
+  // this would normally hang until we connect to Redis
+  await cacher1.start();
 
   app.listen(3000, async () => {
     console.info('Server is running on port 3000');
-    //await cacher1.start();
   });
 }
 
