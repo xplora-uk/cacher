@@ -6,8 +6,10 @@ const app = express();
 app.use(express.json());
 
 const settings = { defaultExpiryMs: 30 * 1000 };
-const cacher1 = makeCacher({ kind: 'redis-server', options: { url: 'redis://127.0.0.1:6379', database: 1 }, settings });
+const redisUrl = 'redis://127.0.0.1:6379';
+const cacher1 = makeCacher({ kind: 'redis-server', options: { url: redisUrl, database: 1 }, settings });
 const cacher2 = makeCacher({ kind: 'node-cache', options: {}, settings });
+const cacher3 = makeCacher({ kind: 'redis-server-with-replica', options: { url: redisUrl, database: 1, roUrl: redisUrl, roDatabase: 1 }, settings });
 
 const useCacher = (app, cacher, prefix) => {
   async function setter(req, res) {
@@ -49,6 +51,7 @@ const useCacher = (app, cacher, prefix) => {
 
 useCacher(app, cacher1, '/redis-server');
 useCacher(app, cacher2, '/node-cache');
+useCacher(app, cacher3, '/redis-server-with-replica');
 
 async function main() {
 

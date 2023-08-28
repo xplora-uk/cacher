@@ -21,7 +21,6 @@ Default waiting time in between reconnection attempts is 15 seconds.
 * operation timeout will be implemented for Redis.
 * memory size limit will be implemented for Node-cache.
 * cacher for Redis in cluster mode.
-* improve cacher for Redis server to work in ReadOnly mode.
 * implement cacher to manage 2 Redis servers: Read/Write and ReadOnly.
 
 ## notes
@@ -125,21 +124,24 @@ npm run test:coverage
 Current coverage:
 
 ```plain
-File                  | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s              
-----------------------|---------|----------|---------|---------|--------------------------------
-All files             |   74.86 |    58.44 |   74.57 |   77.38 |                                
- cacher               |   84.61 |    57.89 |     100 |   95.65 |                                
-  constants.ts        |     100 |      100 |     100 |     100 |                                
-  factory.ts          |   80.95 |    57.89 |     100 |   94.44 | 44                             
-  index.ts            |     100 |      100 |     100 |     100 |                                
- cacher/node-cache    |   85.45 |    77.77 |   85.71 |   86.27 |                                
-  cacher.ts           |   84.61 |       75 |      85 |   85.41 | 24-32,42,65-67                 
-  types.ts            |     100 |      100 |     100 |     100 |                                
- cacher/redis-server  |   66.66 |       50 |   67.56 |   68.08 |                                
-  cacher.ts           |   76.25 |    56.25 |   77.41 |   79.16 | 30-42,66,82-87,118-119,126-128 
-  timedRedisRunner.ts |    6.25 |        0 |       0 |    6.25 | 4-27                           
-  types.ts            |     100 |      100 |     100 |     100 |                                
-----------------------|---------|----------|---------|---------|--------------------------------                              
+----------------------------------|---------|----------|---------|---------|--------------------------------
+File                              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s              
+----------------------------------|---------|----------|---------|---------|--------------------------------
+All files                         |   76.58 |    61.79 |   76.81 |   78.94 |                                
+ cacher                           |    87.5 |    66.66 |     100 |   96.55 |                                
+  constants.ts                    |     100 |      100 |     100 |     100 |                                
+  factory.ts                      |   85.18 |    66.66 |     100 |   95.83 | 66                             
+  index.ts                        |     100 |      100 |     100 |     100 |                                
+ cacher/node-cache                |   85.45 |    77.77 |   85.71 |   86.27 |                                
+  cacher.ts                       |   84.61 |       75 |      85 |   85.41 | 24-32,42,65-67                 
+  types.ts                        |     100 |      100 |     100 |     100 |                                
+ cacher/redis-server              |   66.66 |       50 |   67.56 |   68.08 |                                
+  cacher.ts                       |   76.25 |    56.25 |   77.41 |   79.16 | 30-42,66,82-87,118-119,126-128 
+  timedRedisRunner.ts             |    6.25 |        0 |       0 |    6.25 | 4-27                           
+  types.ts                        |     100 |      100 |     100 |     100 |                                
+ cacher/redis-server-with-replica |    87.5 |      100 |      90 |    87.5 |                                
+  cacher.ts                       |    87.5 |      100 |      90 |    87.5 | 23-24                          
+----------------------------------|---------|----------|---------|---------|--------------------------------                             
 ```
 
 ### publish
