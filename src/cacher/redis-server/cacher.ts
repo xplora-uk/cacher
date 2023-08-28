@@ -101,7 +101,7 @@ export class RedisServerCacher implements ICacher {
     //}
   }
 
-  private async _getClient(): Promise<RedisClientType | null> {
+  protected async _getClient(): Promise<RedisClientType | null> {
     await this.start();
     return this._state === REDIS_STATE.READY ? this._client : null;
   }

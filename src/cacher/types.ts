@@ -36,13 +36,20 @@ export interface ICacherSettings {
 }
 
 export interface ICacherInput {
-  kind    : string | 'redis-server' | 'node-cache';
+  kind    : string | 'redis-server' | 'redis-server-with-replica' | 'node-cache';
+
   options?: {
     // `redis[s]://[[username][:password]@][host][:port][/db-number]`
     url             ?: string;
     database        ?: number;
     connectTimeoutMs?: number;
     reconnectAfterMs?: number;
+    
+    // read-only replica * * *
+    // `redis[s]://[[username][:password]@][host][:port][/db-number]`
+    roUrl     ?: string;
+    roDatabase?: number;
   };
+
   settings?: ICacherSettings;
 }
