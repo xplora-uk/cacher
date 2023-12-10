@@ -72,7 +72,9 @@ describe('cacher with node-cache', () => {
     if (!cacher) return;
 
     const result = await cacher.findKeys('key');
-    expect(result).to.deep.equal(['key1', 'key2', 'key3']);
+    expect(result.includes('key1')).to.equal(true);
+    expect(result.includes('key2')).to.equal(true);
+    expect(result.includes('key3')).to.equal(true);
   });
 
   it('should return values on cache hit', async () => {

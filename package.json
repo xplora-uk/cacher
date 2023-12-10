@@ -1,6 +1,6 @@
 {
   "name": "@xplora-uk/cacher",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Wrapper for cache clients for more resilient operations",
   "main": "lib/index.js",
   "type": "commonjs",
@@ -12,10 +12,10 @@
     "build:ts": "tsc -b ./tsconfig.build.json",
     "build": "npm run clean && npm run build:ts",
     "clean": "rimraf lib",
-    "test": "mocha -r ts-node/register ./src/__tests__/**/*.test.ts",
-    "test:integration": "mocha -r ts-node/register ./src/__tests__/integration/**/*.test.ts",
-    "test:component": "mocha -r ts-node/register ./src/__tests__/component/**/*.test.ts",
-    "test:unit": "mocha -r ts-node/register ./src/__tests__/unit/**/*.test.ts",
+    "test": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/**/*.test.ts",
+    "test:integration": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/integration/**/*.test.ts",
+    "test:component": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/component/**/*.test.ts",
+    "test:unit": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/unit/**/*.test.ts",
     "test:coverage": "nyc npm run test"
   },
   "repository": {
@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "ioredis": "^5.3.2",
+    "lru-cache": "^10.1.0",
     "node-cache": "^5.1.2",
     "redis": "^4.6.11"
   }

@@ -6,8 +6,10 @@ export type IoRedisClientOptions = RedisOptions;
 // "wait" | "reconnecting" | "connecting" | "connect" | "ready" | "close" | "end"
 
 export enum IO_REDIS_STATE {
+  WAITING = 'wait',
   DISCONNECTING = 'close',
   DISCONNECTED = 'end',
+  RECONNECTING = 'reconnecting',
   CONNECTING = 'connecting',
   CONNECTED = 'connect',
   READY = 'ready',

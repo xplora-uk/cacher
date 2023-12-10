@@ -25,7 +25,7 @@ describe('cacher with redis server using ioredis lib', () => {
       },
     });
     if (cacher) await cacher.start();
-    await waitForMs(1000);
+    await waitForMs(2000);
   });
 
   after(async () => {

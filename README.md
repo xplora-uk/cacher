@@ -5,6 +5,7 @@ Wrapper for cache clients for more resilient operations.
 It uses:
 
 * [ioredis](https://www.npmjs.com/package/ioredis)
+* [lru-cache](https://www.npmjs.com/package/lru-cache)
 * [node-cache](https://www.npmjs.com/package/node-cache)
 * [redis](https://www.npmjs.com/package/redis)
 
@@ -22,7 +23,9 @@ Default waiting time in between reconnection attempts is 15 seconds.
 
 Implemented cacher to manage 2 Redis servers: Read/Write and ReadOnly.
 
-Implemented ioredis, added 2 kinds: `ioredis-server` and `ioredis-server-with-replica`
+Implemented ioredis, added 2 kinds: `ioredis-server` and `ioredis-server-with-replica`.
+
+Implemented lru-cache, added kind `lru-cache`. Max item count: 1m; max size of items: 64MB.
 
 ## TODO
 
@@ -37,8 +40,8 @@ Implemented ioredis, added 2 kinds: `ioredis-server` and `ioredis-server-with-re
 
 ## requirements
 
-* Node v18.x for version 2.x
-* Node v16.x for version 1.x
+* Node v18.19.0+ for version 2.x
+* Node v16.19.1+ for version 1.x
 
 ## usage
 

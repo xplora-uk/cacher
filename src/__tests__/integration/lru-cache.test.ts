@@ -1,10 +1,9 @@
 import { expect } from 'chai';
 import { makeCacher } from '../../cacher';
 import { ICacher } from '../../cacher/types';
-import { RedisServerCacher } from '../../cacher/redis-server/cacher';
-import { waitForMs } from '../../cacher/utils';
+import { LruCacheCacher } from '../../cacher/lru-cache/cacher';
 
-describe('cacher with redis server', () => {
+describe('cacher with lru-cache', () => {
   const oneMinute = 60 * 1000;
   let cacher: ICacher | null = null;
 
@@ -16,25 +15,22 @@ describe('cacher with redis server', () => {
 
   before(async () => {
     cacher = makeCacher({
-      kind: 'redis-server',
-      options: {
-        url: 'redis://127.0.0.1:6379',
-      },
+      kind: 'lru-cache',
+      options: {},
       settings: {
         defaultExpiryMs: oneMinute,
       },
     });
     if (cacher) await cacher.start();
-    await waitForMs(2000);
   });
 
   after(async () => {
     if (cacher) await cacher.stop();
   });
 
-  it('should make a cacher for a redis server', () => {
+  it('should make a cacher for a lru-cache', () => {
     expect(cacher !== null).to.equal(true);
-    expect(cacher instanceof RedisServerCacher).to.equal(true);
+    expect(cacher instanceof LruCacheCacher).to.equal(true);
   });
 
   it('should set item 1', async () => {
@@ -80,7 +76,8 @@ describe('cacher with redis server', () => {
     expect(result.includes('key2')).to.equal(true);
     expect(result.includes('key3')).to.equal(true);
   });
-  it('should return values on cache hit - getItems', async () => {
+
+  it('should return values on cache hit', async () => {
     if (!cacher) return;
 
     const result = await cacher.getItems(['key0', 'key1', 'key2']);
@@ -106,7 +103,7 @@ describe('cacher with redis server', () => {
     expect(result).to.equal(false);
   });
 
-  it('should delete items and return true/false accordingly', async () => {
+  it('should delete items and return true', async () => {
     if (!cacher) return;
 
     const result = await cacher.delItems(['key0', 'key1', 'key2']);
@@ -118,4 +115,4 @@ describe('cacher with redis server', () => {
     expect(result['key2']).to.equal(true);
   });
   
-});
+})

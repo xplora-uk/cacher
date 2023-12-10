@@ -89,19 +89,21 @@ export class RedisServerCacher implements ICacher {
   
   async stop() {
     // console.debug('RedisServerCacher: stop');
-    //if (this._state === REDIS_STATE.READY) { // TODO: do we need this check?
-      try {
-        await this._client.disconnect();
-      } catch (err) {
-        // do nothing
-        //console.warn('RedisServerCacher: stop error', err);
-      }
-    //}
+    try {
+      await this._client.disconnect();
+    } catch (err) {
+      // do nothing
+      //console.warn('RedisServerCacher: stop error', err);
+    }
+  }
+
+  get isReady(): boolean {
+    return this._client.isReady;
   }
 
   protected async _getClient(): Promise<RedisClientType | null> {
     await this.start();
-    return this._client && this._client.isReady ? this._client : null;
+    return this.isReady ? this._client : null;
   }
 
   // use client if it is ready, with timeout logic on operations 
