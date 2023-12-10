@@ -1,111 +1,108 @@
-import { createClient, ConnectionTimeoutError } from 'redis';
+import IoRedis from 'ioredis';
 import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString, UnknownErrorType } from '../types';
-import { REDIS_STATE, RedisClientOptions, RedisClientRunner, RedisClientType } from './types';
-import { timedRedisRunner } from './timedRedisRunner';
-import { isNotNil, makeError } from '../utils';
+import { IO_REDIS_STATE, IoRedisClientOptions, IoRedisClientRunner, IoRedisClientType } from './types';
+import { timedIoRedisRunner } from './timedIoRedisRunner';
+import { makeError } from '../utils';
 
 /**
  * Class to work with a Redis server which is a stand-alone server, not a cluster.
  */
-export class RedisServerCacher implements ICacher {
+export class IoRedisServerCacher implements ICacher {
 
-  private _state: REDIS_STATE = REDIS_STATE.DISCONNECTED;
+  private get _state() { return this._client.status; }
 
-  private _client: RedisClientType;
+  private _client: IoRedisClientType;
 
   private _onError: CacherErrorHandler = (_err: UnknownErrorType) => {};
 
   constructor(
-    private _options: RedisClientOptions,
+    private _options: IoRedisClientOptions,
     private _settings: ICacherSettings,
   ) {
-    this._client = createClient(this._options);
+    this._client = new IoRedis(this._options);
 
-    this._client.on('error',        this._runOnError);
-    this._client.on('connect',      this._runOnConnect);
-    this._client.on('reconnecting', this._runOnReconnecting);
-    this._client.on('ready',        this._runOnReady);
-    this._client.on('end',          this._runOnEnd); // disconnect
+    this._client.on('error',        this._runOnError.bind(this));
+    this._client.on('connect',      this._runOnConnect.bind(this));
+    this._client.on('reconnecting', this._runOnReconnecting.bind(this));
+    this._client.on('ready',        this._runOnReady.bind(this));
+    this._client.on('end',          this._runOnEnd.bind(this)); // disconnect
   }
 
   onError(f: CacherErrorHandler) {
     this._onError = f;
   }
 
-  private _runOnError = (err: Error) => {
-    //console.warn('RedisServerCacher: _runOnError error', err);
+  private _runOnError(err: Error) {
+    // console.warn('IoRedisServerCacher: error', err);
     try {
       // are we disconnected?
       if (err) {
-        if (err instanceof ConnectionTimeoutError) {
-          this._state = REDIS_STATE.DISCONNECTED;
-        }
+        // TODO: handle error type
+        //if (err instanceof ConnectionTimeoutError) {
+        //  this._state = IO_REDIS_STATE.DISCONNECTED;
+        //}
       }
       this._onError(err);
     } catch (err) {
       // do nothing
-      //console.warn('RedisServerCacher: _runOnError _onError error', err);
+      // console.warn('IoRedisServerCacher: _runOnError error', err);
     }
   }
 
-  private _runOnConnect = () => {
-    // console.debug('RedisServerCacher: connect');
-    this._state = REDIS_STATE.CONNECTED;
+  private _runOnConnect() {
+    // console.debug('IoRedisServerCacher: connect');
+    //this._state = IO_REDIS_STATE.CONNECTED;
   }
 
-  private _runOnReady = () => {
-    // console.debug('RedisServerCacher: ready');
-    this._state = REDIS_STATE.READY;
+  private _runOnReady() {
+    // console.debug('IoRedisServerCacher: ready');
+    //this._state = IO_REDIS_STATE.READY;
   }
 
-  private _runOnEnd = () => {
-    // console.debug('RedisServerCacher: end');
-    this._state = REDIS_STATE.DISCONNECTED;
+  private _runOnEnd() {
+    // console.debug('IoRedisServerCacher: end');
+    //this._state = IO_REDIS_STATE.DISCONNECTED;
   }
 
-  private _runOnReconnecting = () => {
-    // console.debug('RedisServerCacher: reconnecting');
-    this._state = REDIS_STATE.CONNECTING;
+  private _runOnReconnecting() {
+    // console.debug('IoRedisServerCacher: reconnecting');
+    //this._state = IO_REDIS_STATE.CONNECTING;
   }
 
   async start() {
-    // console.debug('RedisServerCacher: start');
-    if (this._state === REDIS_STATE.DISCONNECTED) {
-
-      this._state = REDIS_STATE.CONNECTING;
-
-      // await this._client.connect(); // <== this will hang due to reconnection attempts, if redis is not running
+    // console.debug('IoRedisServerCacher: start');
+    if (this._state === IO_REDIS_STATE.DISCONNECTED) {
+      //this._state = IO_REDIS_STATE.CONNECTING;
 
       this._client.connect()
         .then(() => {
-          // console.info('RedisServerCacher: connected');
+          // console.info('IoRedisServerCacher: connected');
         })
         .catch((err: Error) => {
-          this._state = REDIS_STATE.DISCONNECTED;
           this._runOnError(err);
         });
     }
   }
   
   async stop() {
-    // console.debug('RedisServerCacher: stop');
+    // console.debug('IoRedisServerCacher: stop');
     //if (this._state === REDIS_STATE.READY) { // TODO: do we need this check?
       try {
         await this._client.disconnect();
       } catch (err) {
         // do nothing
-        //console.warn('RedisServerCacher: stop error', err);
+        // console.warn('IoRedisServerCacher: stop error', err);
       }
     //}
   }
 
-  protected async _getClient(): Promise<RedisClientType | null> {
+  protected async _getClient(): Promise<IoRedisClientType | null> {
     await this.start();
-    return this._client && this._client.isReady ? this._client : null;
+    return this._state === IO_REDIS_STATE.READY ? this._client : null;
   }
 
   // use client if it is ready, with timeout logic on operations 
-  private async _runClient<T = unknown>(useClient: RedisClientRunner<T>, returnIfNoClientOrError: T): Promise<T> {
+  private async _runClient<T = unknown>(useClient: IoRedisClientRunner<T>, returnIfNoClientOrError: T): Promise<T> {
     const client = await this._getClient();
     if (!client) return returnIfNoClientOrError;
 
@@ -113,7 +110,7 @@ export class RedisServerCacher implements ICacher {
       const timeout = this._settings?.operationTimeoutMs || 0;
       if (timeout > 0) {
         // await => we want to catch errors here 
-        const result1 = await timedRedisRunner(useClient, client, timeout);
+        const result1 = await timedIoRedisRunner(useClient, client, timeout);
         return result1;
       } else {
         // await => we want to catch errors here 
@@ -129,14 +126,9 @@ export class RedisServerCacher implements ICacher {
   async setItem(key: string, value: string, expiryMs: number = 0): Promise<NullableBoolean> {
     const _expiryMs = expiryMs || this._settings.defaultExpiryMs || 0;
     return this._runClient<boolean>(
-      async (client: RedisClientType) => {
-        if (0 < _expiryMs) {
-          const res = await client.set(key, value, { PX: _expiryMs });
-          return res === 'OK';
-        } else {
-          const res2 = await client.set(key, value);
-          return res2 === 'OK';
-        }
+      async (client: IoRedisClientType) => {
+        const res = await client.set(key, value, 'PX', _expiryMs);
+        return res === 'OK';
       },
       false,
     );
@@ -144,7 +136,7 @@ export class RedisServerCacher implements ICacher {
 
   async getItem(key: string): Promise<NullableString> {
     return this._runClient(
-      async (client: RedisClientType) => {
+      async (client: IoRedisClientType) => {
         const val = await client.get(key);
         if (!val) return Promise.resolve(null);
         return val;
@@ -155,12 +147,12 @@ export class RedisServerCacher implements ICacher {
 
   async getItems(keys: string[]): Promise<CacherManyItems> {
     return this._runClient<CacherManyItems>(
-      async (client: RedisClientType) => {
-        const values = await client.mGet(keys);
+      async (client: IoRedisClientType) => {
+        const values = await client.mget(keys);
         if (!values) return {};
         const obj: CacherManyItems = {};
         values.forEach((val, i) => {
-          obj[keys[i]] = isNotNil<string>(val) ? val : null;
+          obj[keys[i]] = val !== undefined && val !== null ? val : null;
         })
         return obj;
       },
@@ -170,7 +162,7 @@ export class RedisServerCacher implements ICacher {
 
   async delItem(key: string): Promise<NullableBoolean> {
     return this._runClient(
-      async (client: RedisClientType) => {
+      async (client: IoRedisClientType) => {
         const val = await client.del(key);
         return Boolean(val);
       },
@@ -191,7 +183,7 @@ export class RedisServerCacher implements ICacher {
 
   async findKeys(keyPrefix: string): Promise<string[]> {
     return this._runClient(
-      async (client: RedisClientType) => {
+      async (client: IoRedisClientType) => {
         const keys = await client.keys(`${keyPrefix}*`);
         return keys || [];
       },

@@ -2,7 +2,11 @@
 
 Wrapper for cache clients for more resilient operations.
 
-Currently, it uses [redis](https://www.npmjs.com/package/redis) and [node-cache](https://www.npmjs.com/package/node-cache).
+It uses:
+
+* [ioredis](https://www.npmjs.com/package/ioredis)
+* [node-cache](https://www.npmjs.com/package/node-cache)
+* [redis](https://www.npmjs.com/package/redis)
 
 Redis implementation requires a Redis server running in stand-alone mode, not in cluster mode.
 
@@ -16,12 +20,15 @@ Default connection timeout is 3 seconds.
 
 Default waiting time in between reconnection attempts is 15 seconds.
 
+Implemented cacher to manage 2 Redis servers: Read/Write and ReadOnly.
+
+Implemented ioredis, added 2 kinds: `ioredis-server` and `ioredis-server-with-replica`
+
 ## TODO
 
 * operation timeout will be implemented for Redis.
 * memory size limit will be implemented for Node-cache.
 * cacher for Redis in cluster mode.
-* implement cacher to manage 2 Redis servers: Read/Write and ReadOnly.
 
 ## notes
 
@@ -30,7 +37,8 @@ Default waiting time in between reconnection attempts is 15 seconds.
 
 ## requirements
 
-* Node v16.x
+* Node v18.x for version 2.x
+* Node v16.x for version 1.x
 
 ## usage
 
@@ -44,9 +52,15 @@ const { makeCacher } = require('@xplora-uk/cacher');
 const thirtySeconds = 30 * 1000;
 const settings = { defaultExpiryMs: thirtySeconds };
 
-const cacher1 = makeCacher({ kind: 'redis-server', options: { url: 'redis://127.0.0.1:6379', database: 1 }, settings });
+const redisUrl = 'redis://127.0.0.1:6379';
 
-const cacher2 = makeCacher({ kind: 'node-cache', options: {}, settings });
+const cacher1 = makeCacher({ kind: 'node-cache', options: {}, settings });
+
+const cacher2 = makeCacher({ kind: 'redis-server', options: { url: redisUrl, database: 1 }, settings });
+const cacher2b = makeCacher({ kind: 'redis-server-with-replica', options: { url: redisUrl, roUrl: redisUrl, database: 1 }, settings });
+
+const cacher3 = makeCacher({ kind: 'ioredis-server', options: { url: redisUrl, database: 1 }, settings });
+const cacher3b = makeCacher({ kind: 'ioredis-server-with-replica', options: { url: redisUrl, roUrl: redisUrl, database: 1 }, settings });
 
 // check example/index.js for details
 ```

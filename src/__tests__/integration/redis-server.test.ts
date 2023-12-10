@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { makeCacher } from '../../cacher';
 import { ICacher } from '../../cacher/types';
 import { RedisServerCacher } from '../../cacher/redis-server/cacher';
+import { waitForMs } from '../../cacher/utils';
 
 describe('cacher with redis server', () => {
   const oneMinute = 60 * 1000;
@@ -20,10 +21,11 @@ describe('cacher with redis server', () => {
         url: 'redis://127.0.0.1:6379',
       },
       settings: {
-        defaultExpiryMs:oneMinute,
+        defaultExpiryMs: oneMinute,
       },
     });
     if (cacher) await cacher.start();
+    await waitForMs(1000);
   });
 
   after(async () => {
@@ -56,6 +58,13 @@ describe('cacher with redis server', () => {
     expect(result).to.equal(true);
   });
 
+  it('should return null on cache miss', async () => {
+    if (!cacher) return;
+
+    const result = await cacher.getItem('key0');
+    expect(result).to.equal(null);
+  });
+
   it('should return value on cache hit', async () => {
     if (!cacher) return;
 
@@ -63,7 +72,7 @@ describe('cacher with redis server', () => {
     expect(result).to.equal(items.key1);
   });
 
-  it('should return find keys', async () => {
+  it('should find keys', async () => {
     if (!cacher) return;
 
     const result = await cacher.findKeys('key');
@@ -71,22 +80,16 @@ describe('cacher with redis server', () => {
     expect(result.includes('key2')).to.equal(true);
     expect(result.includes('key3')).to.equal(true);
   });
-  it('should return values on cache hit', async () => {
+  it('should return values on cache hit - getItems', async () => {
     if (!cacher) return;
 
     const result = await cacher.getItems(['key0', 'key1', 'key2']);
     expect('key0' in result).to.equal(true);
     expect('key1' in result).to.equal(true);
     expect('key2' in result).to.equal(true);
+    expect(result['key0']).to.equal(null);
     expect(result['key1']).to.equal(items.key1);
     expect(result['key2']).to.equal(items.key2);
-  });
-
-  it('should return null on cache miss', async () => {
-    if (!cacher) return;
-
-    const result = await cacher.getItem('key0');
-    expect(result).to.equal(null);
   });
 
   it('should delete item and return true', async () => {

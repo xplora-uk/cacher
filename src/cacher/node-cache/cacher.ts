@@ -1,6 +1,7 @@
 import NodeCache from 'node-cache';
 import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString, UnknownErrorType } from '../types';
 import { NODE_CACHE_STATE, NodeCacheOptions, NodeCacheRunner } from './types';
+import { makeError } from '../utils';
 
 /**
  * Class to work with a Redis server which is a stand-alone server, not a cluster.
@@ -18,18 +19,19 @@ export class NodeCacheCacher implements ICacher {
     private _settings: ICacherSettings,
   ) {
     this._client = new NodeCache(this._options);
+    this._state = NODE_CACHE_STATE.CONNECTED;
   }
 
   onError(f: CacherErrorHandler) {
     this._onError = f;
   }
 
-  private _runOnError(err: UnknownErrorType) {
+  private _runOnError(err: Error) {
     try {
       this._onError(err);
     } catch (err) {
       // do nothing
-      console.warn('NodeCacheCacher: _runOnError error', err);
+      //console.warn('NodeCacheCacher: _runOnError error', err);
     }
   }
 
@@ -39,7 +41,7 @@ export class NodeCacheCacher implements ICacher {
         this._client = new NodeCache(this._options);
         this._state = NODE_CACHE_STATE.CONNECTED;
       } catch (err) {
-        this._runOnError(err);
+        this._runOnError(makeError(err));
       }
     }
   }
@@ -62,7 +64,7 @@ export class NodeCacheCacher implements ICacher {
     try {
       return f(client);
     } catch (err) {
-      this._runOnError(err);
+      this._runOnError(makeError(err));
     }
     return returnIfNoClientOrError;
   }
@@ -91,7 +93,15 @@ export class NodeCacheCacher implements ICacher {
   async getItems(keys: string[]): Promise<CacherManyItems> {
     return this._runClient<CacherManyItems>(
       async (client: NodeCache) => {
-        return client.mget(keys);
+        const result: CacherManyItems = client.mget(keys);
+        if (!result) return {};
+        const keysFound = Object.keys(result);
+        for (const key of keys) {
+          if (!keysFound.includes(key)) {
+            result[key] = null;
+          }
+        }
+        return result;
       },
       {},
     );

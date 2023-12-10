@@ -18,7 +18,7 @@ describe('cacher with node-cache', () => {
       kind: 'node-cache',
       options: {},
       settings: {
-        defaultExpiryMs:oneMinute,
+        defaultExpiryMs: oneMinute,
       },
     });
     if (cacher) await cacher.start();
@@ -54,6 +54,13 @@ describe('cacher with node-cache', () => {
     expect(result).to.equal(true);
   });
 
+  it('should return null on cache miss', async () => {
+    if (!cacher) return;
+
+    const result = await cacher.getItem('key0');
+    expect(result).to.equal(null);
+  });
+
   it('should return value on cache hit', async () => {
     if (!cacher) return;
 
@@ -61,7 +68,7 @@ describe('cacher with node-cache', () => {
     expect(result).to.equal(items.key1);
   });
 
-  it('should return find keys', async () => {
+  it('should find keys', async () => {
     if (!cacher) return;
 
     const result = await cacher.findKeys('key');
@@ -72,18 +79,12 @@ describe('cacher with node-cache', () => {
     if (!cacher) return;
 
     const result = await cacher.getItems(['key0', 'key1', 'key2']);
-    expect('key0' in result).to.equal(false);
+    expect('key0' in result).to.equal(true);
     expect('key1' in result).to.equal(true);
     expect('key2' in result).to.equal(true);
+    expect(result['key0']).to.equal(null);
     expect(result['key1']).to.equal(items.key1);
     expect(result['key2']).to.equal(items.key2);
-  });
-
-  it('should return null on cache miss', async () => {
-    if (!cacher) return;
-
-    const result = await cacher.getItem('key0');
-    expect(result).to.equal(null);
   });
 
   it('should delete item and return true', async () => {

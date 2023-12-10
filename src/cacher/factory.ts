@@ -1,4 +1,6 @@
 import { CONNECTION_TIMEOUT_MS, DEFAULT_EXPIRY_MS, OPERATION_TIMEOUT_MS, WAIT_BEFORE_RECONNECT_MS } from './constants';
+import { IoRedisServerWithReplicaCacher } from './ioredis-server-with-replica/cacher';
+import { IoRedisServerCacher } from './ioredis-server/cacher';
 import { NodeCacheCacher } from './node-cache/cacher';
 import { RedisServerWithReplicaCacher } from './redis-server-with-replica/cacher';
 import { RedisServerCacher } from './redis-server/cacher';
@@ -7,7 +9,7 @@ import { ICacher, ICacherInput } from './types';
 export function makeCacher(input: ICacherInput): ICacher | null {
   const defaultSettings = {
     defaultExpiryMs   : DEFAULT_EXPIRY_MS,
-    operationTimeoutMs: 0, // OPERATION_TIMEOUT_MS, // TODO: implement this later
+    operationTimeoutMs: OPERATION_TIMEOUT_MS,
   };
 
   const defaultUrl = 'redis://127.0.0.1:6379';
@@ -53,6 +55,27 @@ export function makeCacher(input: ICacherInput): ICacher | null {
         socket  : socketOptions,
       };
       return new RedisServerWithReplicaCacher(rwOptions, roOptions, settings);
+
+    case 'ioredis-server':
+      const ioRedisOptions = {
+        url   : options.url || defaultUrl,
+        db    : options.database || 0,
+        socket: socketOptions,
+      };
+      return new IoRedisServerCacher(ioRedisOptions, settings);
+
+    case 'ioredis-server-with-replica':
+      const ioRwOptions = {
+        url   : options.url || defaultUrl,
+        db    : options.database || 0,
+        socket: socketOptions,
+      };
+      const ioRoOptions = {
+        url   : options.roUrl || defaultUrl,
+        db    : options.roDatabase || 0,
+        socket: socketOptions,
+      };
+      return new IoRedisServerWithReplicaCacher(ioRwOptions, ioRoOptions, settings);
 
     case 'node-cache':
       let stdTTL = Math.round(settings.defaultExpiryMs || DEFAULT_EXPIRY_MS) / 1000; // in seconds

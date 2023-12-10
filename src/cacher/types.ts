@@ -36,7 +36,7 @@ export interface ICacherSettings {
 }
 
 export interface ICacherInput {
-  kind    : string | 'redis-server' | 'redis-server-with-replica' | 'node-cache';
+  kind: string | 'redis-server' | 'redis-server-with-replica' | 'node-cache' | 'ioredis-server' | 'ioredis-server-with-replica';
 
   options?: {
     // `redis[s]://[[username][:password]@][host][:port][/db-number]`

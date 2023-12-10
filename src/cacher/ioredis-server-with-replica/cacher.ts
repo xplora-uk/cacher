@@ -1,22 +1,22 @@
-import { RedisServerCacher } from '../redis-server/cacher';
-import { RedisClientOptions } from '../redis-server/types';
+import { IoRedisServerCacher } from '../ioredis-server/cacher';
+import { IoRedisClientOptions } from '../ioredis-server/types';
 import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString } from '../types';
 
 /**
  * Class to work with a Redis server which is a stand-alone server and a another as read-only replica.
  */
-export class RedisServerWithReplicaCacher implements ICacher {
+export class IoRedisServerWithReplicaCacher implements ICacher {
 
-  private _rwRedis: RedisServerCacher;
-  private _roRedis: RedisServerCacher;
+  private _rwRedis: IoRedisServerCacher;
+  private _roRedis: IoRedisServerCacher;
 
   constructor(
-    _rwOptions: RedisClientOptions,
-    _roOptions: RedisClientOptions,
+    _rwOptions: IoRedisClientOptions,
+    _roOptions: IoRedisClientOptions,
     _settings: ICacherSettings,
   ) {
-    this._rwRedis = new RedisServerCacher(_rwOptions, _settings);
-    this._roRedis = new RedisServerCacher(_roOptions, _settings);
+    this._rwRedis = new IoRedisServerCacher(_rwOptions, _settings);
+    this._roRedis = new IoRedisServerCacher(_roOptions, _settings);
   }
 
   onError(f: CacherErrorHandler) {
