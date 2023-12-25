@@ -1,10 +1,10 @@
 {
   "name": "@xplora-uk/cacher",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Wrapper for cache clients for more resilient operations",
   "main": "lib/index.js",
   "type": "commonjs",
-  "types": "lib/types.d.ts",
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "ioredis": "^5.3.2",
+    "json5": "^2.2.3",
     "lru-cache": "^10.1.0",
     "node-cache": "^5.1.2",
     "redis": "^4.6.11"

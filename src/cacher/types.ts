@@ -1,3 +1,13 @@
+// JSON definition - START
+export type JsonType = string | number | boolean | JsonObject | JsonArray | null;
+export interface JsonObject {
+  [prop: string]: JsonType;
+}
+export interface JsonArray extends Array<JsonType> {}
+// JSON definition - END
+
+export type Nullable<T> = T | null;
+
 export type NullableString = string | null;
 
 export type NullableBoolean = boolean | null;
@@ -18,8 +28,12 @@ export interface ICacher {
   onError(handler: CacherErrorHandler): void;
 
   setItem(key: string, value: string, expiryMs?: number): Promise<NullableBoolean>;
+  setItemJson(key: string, value: JsonType, expiryMs?: number): Promise<NullableBoolean>;
+  setItemJson5(key: string, value: JsonType, expiryMs?: number): Promise<NullableBoolean>;
 
   getItem(key: string): Promise<NullableString>;
+  getItemJson(key: string): Promise<JsonType>;
+  getItemJson5(key: string): Promise<JsonType>;
 
   getItems(keys: string[]): Promise<CacherManyItems>;
 

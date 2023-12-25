@@ -75,11 +75,19 @@ export interface ICacher {
   start(): Promise<void>;
   stop(): Promise<void>;
   onError(handler: CacherErrorHandler): void;
+
   setItem(key: string, value: string, expiryMs?: number): Promise<NullableBoolean>;
+  setItemJson(key: string, value: JsonType, expiryMs?: number): Promise<NullableBoolean>;
+  setItemJson5(key: string, value: JsonType, expiryMs?: number): Promise<NullableBoolean>;
+
   getItem(key: string): Promise<NullableString>;
+  getItemJson(key: string): Promise<JsonType>;
+  getItemJson5(key: string): Promise<JsonType>;
   getItems(keys: string[]): Promise<CacherManyItems>;
+
   delItem(key: string): Promise<NullableBoolean>;
   delItems(keys: string[]): Promise<CacherManyItemsDeleted>;
+
   findKeys(prefix: string): Promise<string[]>;
 }
 ```

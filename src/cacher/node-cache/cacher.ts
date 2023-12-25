@@ -1,7 +1,7 @@
 import NodeCache from 'node-cache';
-import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString, UnknownErrorType } from '../types';
+import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, JsonType, NullableBoolean, NullableString, UnknownErrorType } from '../types';
 import { NODE_CACHE_STATE, NodeCacheOptions, NodeCacheRunner } from './types';
-import { makeError } from '../utils';
+import { json5Parse, json5Stringify, jsonParse, jsonStringify, makeError } from '../utils';
 
 /**
  * Class to work with a Redis server which is a stand-alone server, not a cluster.
@@ -83,6 +83,16 @@ export class NodeCacheCacher implements ICacher {
     );
   }
 
+  async setItemJson(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = jsonStringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
+  async setItemJson5(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = json5Stringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
   async getItem(key: string): Promise<NullableString> {
     return this._runClient(
       async (client: NodeCache) => {
@@ -92,6 +102,16 @@ export class NodeCacheCacher implements ICacher {
       },
       null,
     );
+  }
+
+  async getItemJson(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? jsonParse<JsonType>(str) : null;
+  }
+
+  async getItemJson5(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? json5Parse<JsonType>(str) : null;
   }
 
   async getItems(keys: string[]): Promise<CacherManyItems> {

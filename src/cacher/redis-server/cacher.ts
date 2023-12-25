@@ -1,8 +1,8 @@
 import { createClient, ConnectionTimeoutError } from 'redis';
-import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString, UnknownErrorType } from '../types';
+import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, JsonType, NullableBoolean, NullableString, UnknownErrorType } from '../types';
 import { REDIS_STATE, RedisClientOptions, RedisClientRunner, RedisClientType } from './types';
 import { timedRedisRunner } from './timedRedisRunner';
-import { isNotNil, makeError } from '../utils';
+import { isNotNil, json5Parse, json5Stringify, jsonParse, jsonStringify, makeError } from '../utils';
 
 /**
  * Class to work with a Redis server which is a stand-alone server, not a cluster.
@@ -144,6 +144,16 @@ export class RedisServerCacher implements ICacher {
     );
   }
 
+  async setItemJson(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = jsonStringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
+  async setItemJson5(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = json5Stringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
   async getItem(key: string): Promise<NullableString> {
     return this._runClient(
       async (client: RedisClientType) => {
@@ -153,6 +163,16 @@ export class RedisServerCacher implements ICacher {
       },
       null,
     );
+  }
+
+  async getItemJson(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? jsonParse<JsonType>(str) : null;
+  }
+
+  async getItemJson5(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? json5Parse<JsonType>(str) : null;
   }
 
   async getItems(keys: string[]): Promise<CacherManyItems> {

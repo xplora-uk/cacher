@@ -1,6 +1,7 @@
 import { IoRedisServerCacher } from '../ioredis-server/cacher';
 import { IoRedisClientOptions } from '../ioredis-server/types';
-import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, NullableBoolean, NullableString } from '../types';
+import { CacherErrorHandler, CacherManyItems, CacherManyItemsDeleted, ICacher, ICacherSettings, JsonType, NullableBoolean, NullableString } from '../types';
+import { json5Parse, json5Stringify, jsonParse, jsonStringify } from '../utils';
 
 /**
  * Class to work with a Redis server which is a stand-alone server and a another as read-only replica.
@@ -38,8 +39,28 @@ export class IoRedisServerWithReplicaCacher implements ICacher {
     return this._rwRedis.setItem(key, value, expiryMs);
   }
 
+  async setItemJson(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = jsonStringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
+  async setItemJson5(key: string, value: JsonType, expiryMs?: number | undefined): Promise<NullableBoolean> {
+    const str = json5Stringify(value);
+    return this.setItem(key, str || '{}', expiryMs);
+  }
+
   async getItem(key: string): Promise<NullableString> {
     return this._roRedis.getItem(key);
+  }
+
+  async getItemJson5(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? json5Parse<JsonType>(str) : null;
+  }
+
+  async getItemJson(key: string): Promise<JsonType | null> {
+    const str = await this.getItem(key);
+    return str ? jsonParse<JsonType>(str) : null;
   }
 
   async getItems(keys: string[]): Promise<CacherManyItems> {
