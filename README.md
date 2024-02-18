@@ -40,7 +40,7 @@ Implemented lru-cache, added kind `lru-cache`. Max item count: 1m; max size of i
 
 ## requirements
 
-* Node v18.19.0+ for version 2.x
+* Node v18.16.0+ for version 2.x
 * Node v16.19.1+ for version 1.x
 
 ## usage
