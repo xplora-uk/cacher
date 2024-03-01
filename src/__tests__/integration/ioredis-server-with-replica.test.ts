@@ -7,6 +7,7 @@ import { waitForMs } from '../../cacher/utils';
 describe('cacher with redis server with replica using ioredis lib', () => {
   const oneMinute = 60 * 1000;
   let cacher: ICacher | null = null;
+  const penv = process.env;
 
   const items = {
     ioRoKey1: 'value1',
@@ -18,8 +19,8 @@ describe('cacher with redis server with replica using ioredis lib', () => {
     cacher = makeCacher({
       kind: 'ioredis-server-with-replica',
       options: {
-        url: 'redis://127.0.0.1:6379',
-        roUrl: 'redis://127.0.0.1:6379',
+        url:   penv.REDIS_RW_URL || 'redis://127.0.0.1:6379',
+        roUrl: penv.REDIS_RO_URL || 'redis://127.0.0.1:6379',
       },
       settings: {
         defaultExpiryMs: oneMinute,

@@ -1,6 +1,6 @@
 {
   "name": "@xplora-uk/cacher",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Wrapper for cache clients for more resilient operations",
   "main": "lib/index.js",
   "type": "commonjs",
@@ -12,10 +12,10 @@
     "build:ts": "tsc -b ./tsconfig.build.json",
     "build": "npm run clean && npm run build:ts",
     "clean": "rimraf lib",
-    "test": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/**/*.test.ts",
-    "test:integration": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/integration/**/*.test.ts",
-    "test:component": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/component/**/*.test.ts",
-    "test:unit": "mocha  --timeout 5000 -r ts-node/register ./src/__tests__/unit/**/*.test.ts",
+    "test": "mocha ./src/__tests__/**/*.test.ts",
+    "test:integration": "mocha ./src/__tests__/integration/**/*.test.ts",
+    "test:component": "mocha ./src/__tests__/component/**/*.test.ts",
+    "test:unit": "mocha ./src/__tests__/unit/**/*.test.ts",
     "test:coverage": "nyc npm run test"
   },
   "repository": {
@@ -25,7 +25,11 @@
   "keywords": [
     "cacher",
     "cache",
-    "redis"
+    "redis",
+    "ioredis",
+    "node-cache",
+    "lru-cache",
+    "json5"
   ],
   "author": "Xplora R&D Team",
   "license": "MIT",
@@ -38,6 +42,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.14.1",
     "chai": "^4.3.7",
+    "dotenv": "^16.4.5",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
