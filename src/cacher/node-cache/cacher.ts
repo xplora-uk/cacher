@@ -4,7 +4,7 @@ import { NODE_CACHE_STATE, NodeCacheOptions, NodeCacheRunner } from './types';
 import { json5Parse, json5Stringify, jsonParse, jsonStringify, makeError } from '../utils';
 
 /**
- * Class to work with a Redis server which is a stand-alone server, not a cluster.
+ * Class to work with node-cache
  */
 export class NodeCacheCacher implements ICacher {
 

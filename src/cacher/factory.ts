@@ -3,12 +3,13 @@ import { IoRedisServerWithReplicaCacher } from './ioredis-server-with-replica/ca
 import { IoRedisServerCacher } from './ioredis-server/cacher';
 import { IoRedisClientOptions } from './ioredis-server/types';
 import { LruCacheCacher } from './lru-cache/cacher';
+import { NoCacheCacher } from './no-cache/cacher';
 import { NodeCacheCacher } from './node-cache/cacher';
 import { RedisServerWithReplicaCacher } from './redis-server-with-replica/cacher';
 import { RedisServerCacher } from './redis-server/cacher';
 import { ICacher, ICacherInput } from './types';
 
-export function makeCacher(input: ICacherInput): ICacher | null {
+export function makeCacher(input: ICacherInput): ICacher {
   const defaultSettings = {
     defaultExpiryMs   : DEFAULT_EXPIRY_MS,
     operationTimeoutMs: OPERATION_TIMEOUT_MS,
@@ -105,5 +106,5 @@ export function makeCacher(input: ICacherInput): ICacher | null {
       // do nothing
   }
 
-  return null;
+  return new NoCacheCacher();
 }

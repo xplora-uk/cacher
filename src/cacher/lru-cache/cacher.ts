@@ -3,7 +3,7 @@ import { LRU_CACHE_STATE, LruCache, LruCacheOptions, LruCacheRunner } from './ty
 import { json5Parse, json5Stringify, jsonParse, jsonStringify, makeError } from '../utils';
 
 /**
- * Class to work with a Redis server which is a stand-alone server, not a cluster.
+ * Class to work with lru-cache
  */
 export class LruCacheCacher implements ICacher {
 
